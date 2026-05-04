@@ -139,3 +139,9 @@ docs:  preencher BUGFIX.md
 ## Dúvidas
 
 Se algo estiver ambíguo, documente sua interpretação e siga. Decisão sob incerteza também é avaliada.
+
+---
+
+## Autor
+
+**Michel Mileski** — [@eusouomichel](https://github.com/eusouomichel)
