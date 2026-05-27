@@ -16,7 +16,8 @@ class ContatoController
             json(['erro' => 'Transportadora não encontrada'], 404);
         }
 
-        $stmt = $db->query('SELECT * FROM contatos_transportadora ORDER BY nome ASC');
+        $stmt = $db->prepare('SELECT * FROM contatos_transportadora WHERE id_transportadora = ? ORDER BY nome ASC');
+        $stmt->execute([$params['id']]);
         $rows = $stmt->fetchAll();
 
         json(array_map([self::class, 'format'], $rows));
