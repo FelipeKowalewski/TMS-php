@@ -26,5 +26,6 @@ $router->get('/transportadoras',                                [TransportadoraC
 $router->get('/transportadoras/{id}',                           [TransportadoraController::class, 'show']);
 $router->get('/transportadoras/{id}/contatos',                  [ContatoController::class, 'index']);
 $router->get('/transportadoras/{id}/contatos/{cid}',            [ContatoController::class, 'show']);
+$router->post('/transportadoras/{id}/contatos',                 [ContatoController::class, 'add']);
 
 $router->dispatch();
