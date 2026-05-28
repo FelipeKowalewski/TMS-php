@@ -1,22 +1,14 @@
 # Teste Técnico — Estágio em Desenvolvimento PHP
 
-## Contexto
+## Ambiente
+O ambiente utilizado foi o laragon, que fornece o servidor, o php e o mysql, assim como as extensões pdomysql e curl.
 
-Você está iniciando seu estágio em uma empresa de **TMS (Transportation Management System)** — um sistema que gerencia o transporte de cargas.
-
-No seu primeiro dia, o time te passou duas tarefas: um bug reportado pelo time de operações e um novo endpoint para implementar.
-
----
-
-## Prazo
-
-**5 dias corridos** a partir do recebimento deste desafio.
-
----
-
-## Stack
-
-PHP 8.1+ · PDO · MySQL 8+ · [Phinx](https://phinx.org) (migrations e seeds)
+## Versões
+PHP 8.4.21
+MySQL 8.4.3
+Composer 2.9.8
+CakePHP 5.3.4
+Phinx 0.16.11
 
 ---
 
@@ -30,13 +22,16 @@ cp .env.example .env
 # 2. Instale as dependências
 composer install
 
-# 3. Crie as tabelas
+# 3. Crie o banco de dados com o nome brudam_test
+CREATE DATABASE brudam_test;
+
+# 4. Crie as tabelas
 vendor/bin/phinx migrate
 
-# 4. Popule os dados iniciais
+# 5. Popule os dados iniciais
 vendor/bin/phinx seed:run
 
-# 5. Suba o servidor
+# 6. Suba o servidor
 php -S localhost:8000 public/index.php
 ```
 
@@ -54,6 +49,11 @@ GET /transportadoras/{id}                    → detalhe de uma transportadora
 GET /transportadoras/{id}/contatos           → lista contatos da transportadora
 GET /transportadoras/{id}/contatos/{cid}     → detalhe de um contato
 ```
+**Exemplos:**
+- localhost:8000/transportadoras/1 -> para ver os dados da transportadora com o id=1
+- localhost:8000/transportadoras/2 -> para ver os dados da transportadora com o id=2
+- localhost:8000/transportadoras/1/contatos -> para ver os dados dos contatos da transportadora com o id=1
+- localhost:8000/transportadoras/2/contatos -> para ver os dados dos contatos da transportadora com o id=2
 
 **Dados disponíveis após o seed:**
 - 3 transportadoras (2 ativas, 1 inativa)
@@ -61,87 +61,36 @@ GET /transportadoras/{id}/contatos/{cid}     → detalhe de um contato
 
 ---
 
-## Suas tarefas
+## Tarefa 1 — Corrigir o bug
+Leia o arquivo BUG_REPORT.md, reproduza o problema, corrija e preencha o BUGFIX.md.
 
-### Tarefa 1 — Corrigir o bug
-
-Leia o arquivo [`BUG_REPORT.md`](./BUG_REPORT.md), reproduza o problema, corrija e preencha o [`BUGFIX.md`](./BUGFIX.md).
-
-### Tarefa 2 — Novo endpoint
-
-O time precisa conseguir **cadastrar novos contatos** para uma transportadora.
-
-Implemente:
-
-```
-POST /transportadoras/{id}/contatos
-```
+## Tarefa 2 — Novo endpoint
+O time precisa conseguir cadastrar novos contatos para uma transportadora.
 
 **Body esperado:**
-```json
+
 {
   "nome": "João Costa",
   "email": "joao.costa@exemplo.com.br",
   "telefone": "(11) 99999-0000",
   "cargo": "Comercial"
 }
-```
 
 **Regras:**
-- `nome` e `email` são obrigatórios
-- `telefone` e `cargo` são opcionais
-- O `email` deve conter `@`
-- A transportadora deve existir (e estar ativa)
-- Retornar o contato criado com status `201`
+
+nome e email são obrigatórios
+telefone e cargo são opcionais
+O email deve conter @
+A transportadora deve existir (e estar ativa)
+Retornar o contato criado com status 201
 
 ---
 
-## Commits esperados
+## Deciões técnicas
+Me deparei com situações onde teria que tomar decisões na **tarefa 2**.
 
-Não entregue tudo em um commit só — queremos ver as etapas:
+Na construção da query de inserção de dados do novo contato, decidi por utilizar a iserção das variáveis por parâmetro,
+fazendo uso de ':nomedoatributo' com auxílio de um array com as chaves sendo nomeados com os mesmos nomes dos atributos da tabela.
+Assim, caso fossem enviados dados adicionais, além daqueles que a tabela guarda, eles não interfeririam. Assim como, caso fossem enviados fora de ordem, também não causariam problemas. Também optei por, caso o usuário não enviasse os atributos 'telefone' e 'cargo', envia-los como null.
 
-```
-fix:   corrigir listagem de contatos por transportadora
-feat:  implementar POST /transportadoras/{id}/contatos
-docs:  preencher BUGFIX.md
-```
-
----
-
-## Bônus
-
-- `DELETE /transportadoras/{id}/contatos/{cid}` — remover um contato
-- Validar se o e-mail já está cadastrado para a mesma transportadora
-
----
-
-## Critérios de avaliação
-
-| O que avaliamos | Peso |
-|-----------------|------|
-| Bug corrigido e funcionando | Alto |
-| BUGFIX.md preenchido (técnico + resposta para Camila) | Alto |
-| Endpoint POST funcionando com validações | Alto |
-| Código organizado e legível | Médio |
-| HTTP status codes corretos | Médio |
-| Commits separados por etapa | Médio |
-
----
-
-## Entrega
-
-1. Suba em repositório **público** no GitHub (sem BRUDAM no nome)
-2. README do seu projeto com: como rodar, exemplos de requisição, decisões técnicas
-3. Envie ao recrutador: nome completo · link do repo · LinkedIn
-
----
-
-## Dúvidas
-
-Se algo estiver ambíguo, documente sua interpretação e siga. Decisão sob incerteza também é avaliada.
-
----
-
-## Autor
-
-**Michel Mileski** — [@eusouomichel](https://github.com/eusouomichel)
+Na hora de executar a consulta, diferente de como estava sendo feito nos outros métodos, optei por lidar com possíveis erros utilizando da ferramenta 'try - catch', pois caso houvesse um erro na inserção dos dados ou na integridade do banco, o programa não interromperia o seu funcionamento.
