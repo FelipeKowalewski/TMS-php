@@ -74,6 +74,14 @@ class ContatoController
             ], 400);
         }
 
+        $stmt = $db->prepare('SELECT * FROM contatos_transportadora WHERE id_transportadora = ? AND email = ?');
+        $stmt->execute([$params['id'], $body['email']]);
+        if ($stmt->fetch()) {
+            json([
+                'erro' => 'Email já cadastrado.'
+                ], 409);
+        }
+
         $sql = "
             INSERT INTO contatos_transportadora 
             (id_transportadora, nome, email, telefone, cargo) 
